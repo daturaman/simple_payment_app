@@ -30,13 +30,16 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
             assert $("#accounts option").size() == accounts.size()
     }
 
-//    void "There is a list of accounts on the transaction screen"() {
-//        when:"I select an account"
-//        go '/transactions'
-//
-//        then:"I see all transactions for the account that I selected"
-//            title == "Welcome to Grails"
-//    }
+    void "There is a list of accounts on the transaction screen"() {
+        when:"I select an account and click submit"
+            $("form").accounts = "Bob"
+            $("#acc_submit").click()
+
+        then:"I see all transactions for the account that I selected"
+            title == "See transactions"
+            assert $("#balance").text() == "Balance: 140"
+            assert $("#transactions tr").size() == 4//accounts[0].transactions.size()//TODO Tx.findByName
+    }
 //
 //    void "I visit the Pay screen"() {
 //        when:"I view the page"
