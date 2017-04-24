@@ -12,9 +12,9 @@ class TransactionsController {
 
     def transactions(){
         if (selected == null){
-            respond([name: session.name ?: 'User', allAccounts: accounts])
+            respond([allAccounts: accounts])
         }else{
-            respond([name: session.name ?: 'User', allAccounts: accounts, selected: selected, transactions: transactions])
+            respond([allAccounts: accounts, selected: selected, transactions: transactions])
         }
     }
 
