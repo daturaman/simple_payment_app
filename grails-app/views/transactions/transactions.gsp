@@ -8,7 +8,6 @@
 <div>
 	<h2>Pay</h2>
 	<br/>
-	[ errors go here ]
 	<b>Person:</b>
 	<g:form url="[controller:'transactions', action:'showForAccount']">
 		<select id="accounts" name="accounts">

@@ -22,8 +22,4 @@ class BootStrap {
 	static def getDate(String date) {
 		return new Date().parse('yyyy/MM/dd', date)
 	}
-
-
-	def destroy = {
-	}
 }

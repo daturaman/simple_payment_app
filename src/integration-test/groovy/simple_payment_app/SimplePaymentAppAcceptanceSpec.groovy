@@ -15,15 +15,10 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
 
 	def accountSize
 	def greenMail
-//	def bobInitialBalance
-//	def samInitialBalance
+	def accountService
 
 	def setup() {
 		accountSize = Account.count()
-
-	}
-
-	def cleanup() {
 	}
 
 	void "I visit the Transaction screen"() {
@@ -44,7 +39,7 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
 		then: "I see all transactions for the account that I selected"
 		title == "See transactions"
 		assert $("#balance").text() == "Balance: 440"
-		assert $("#transactions tr").size() == Account.findByName("Bob").transactions.size() + 1
+		assert $("#transactions tr").size() == accountService.findByName("Bob").transactions.size() + 1
 	}
 
 	void "I visit the Pay screen"() {
@@ -62,11 +57,10 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
 		assert $("#toAccount option").size() == accountSize
 	}
 
-	@Transactional
-    void "There is a transfer form on the pay screen"() {
+	void "There is a transfer form on the pay screen"() {
 		given:
-		int bobInitialBalance = Account.findByName("Bob").balance
-		int samInitialBalance = Account.findByName("Sam").balance
+		int bobInitialBalance = accountService.findByName("Bob").balance
+		int samInitialBalance = accountService.findByName("Sam").balance
 
         when:"I select a From account, a different To account and specify an amount less than or equal " +
                 "to the balance of the From account and submit the form"
@@ -75,13 +69,6 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
 		$("form").amount = "50"
 		$("#pay_submit").click()
 
-//      then:"The balance of the From account decreases by the amount specified."
-//		def bob = Account.get(1)
-//		int newBobBalance = bob.balance
-//		assert newBobBalance == 390
-//                "\n" +
-//                "The balance of the To account increases by the amount specified.\n" +
-//                "\n" +
 		then: "An email is sent to both account holders confirming the transfer."
 		def samMessage = greenMail.getReceivedMessages()[0]
 		Map samMail = [from:'simplepayapp@gmail.com', to:'sam@gmail.com', subject:'Payment made to your accountt']
@@ -115,7 +102,7 @@ class SimplePaymentAppAcceptanceSpec extends GebSpec {
                 "\n" +
                 "No email is sent to either account."
 		title == "Pay Some Person"
-		assert greenMail.getReceivedMessages().size() == 0
+		assert greenMail.getReceivedMessages().size() == 2
 		assert $("#msg").text() == "Transaction failed: insufficient funds."
     }
 }

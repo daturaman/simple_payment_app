@@ -3,40 +3,35 @@ package simple_payment_app
 import com.simple.payment.Account
 import com.simple.payment.Transaction
 
-import javax.xml.bind.ValidationException
-
 class PayController {
 
 	static defaultAction = "pay"
-	def accounts = Account.list()
+	def accounts
 	def msg = ""
 	def mailService
+	def accountService
 
 	def pay() {
-		accounts = Account.list()
+		accounts = accountService.listAccounts()
 		respond([allAccounts: accounts, msg: msg])
 	}
 
 	def payAccount(){
-		System.out.println(params.fromAccount)
-		//Create payment transaction
-		Account fromAcc = Account.findByName(params.fromAccount)
+		Account fromAcc = accountService.findByName(params.fromAccount)
 		def amount = Integer.parseInt(params.amount)
+		if(amount > fromAcc.balance){
+			msg = "Transaction failed: insufficient funds."
+			redirect action: 'pay'
+			return
+		}
+
 		int deduction = Math.negateExact(amount)
 		fromAcc.addTransaction(new Transaction(date: new Date(), description: "Payment to ${params.toAccount}", amount: deduction, balance: fromAcc.balance + deduction))
 
-		//Create received tx
-		Account toAcc = Account.findByName(params.toAccount)
+		Account toAcc = accountService.findByName(params.toAccount)
 		toAcc.addTransaction(new Transaction(date: new Date(), description: "Payment from ${params.fromAccount}", amount: amount, balance: toAcc.balance + amount))
 
-		try {
-			fromAcc.save(flush: true, failOnError: true)
-			toAcc.save(flush: true, failOnError: true)
-		} catch (ValidationException v) {
-			v.printStackTrace()
-		}
-
-		Map mail = [message:'hello world', from:fromAcc.email, to:toAcc.email, subject:'subject']
+		accountService.update(fromAcc, toAcc)
 
 		mailService.sendMail {
 			to toAcc.email

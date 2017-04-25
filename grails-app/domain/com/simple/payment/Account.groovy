@@ -14,27 +14,10 @@ class Account {
 		balance += transactions.stream().mapToInt(mapTxAmount).sum()
 	}
 
-//	def makePayment(amount, recipient) {
-//		balance -= amount
-//		Transaction payment =
-//				new Transaction(date: new Date(), amount: amount, description: "Payment to ${recipient}", balance: balance)
-//		return payment
-//	}
-
-
 	void addTransaction(Transaction transaction) {
-		if (balance + transaction.amount >= 0) {
-			transactions << transaction
-			balance += transaction.amount
-			System.out.println("New balance = " + balance)
-		} else {
-			throw new IllegalStateException("Overdrafts are not permitted on this account.")
-		}
+		transactions << transaction
+		balance += transaction.amount
 	}
 
 	def mapTxAmount = { tx -> tx.amount }
-
-	static constraints = {
-		balance min: 0
-	}
 }
